@@ -1,0 +1,21 @@
+:root { --sf-primary: #3157d5; --sf-ink: #172554; }
+body { min-height: 100vh; background: var(--bs-tertiary-bg); }
+.navbar-brand { letter-spacing: -.03em; }
+.brand-icon { display: inline-grid; place-items: center; width: 2.25rem; height: 2.25rem; color: #fff; background: var(--sf-primary); border-radius: .75rem; }
+.hero { color: #fff; background: radial-gradient(circle at 85% 15%, rgba(111, 144, 255, .55), transparent 35%), linear-gradient(125deg, #1d327c, #3157d5 60%, #4776ed); overflow: hidden; }
+.hero .lead { color: rgba(255,255,255,.85); max-width: 44rem; }
+.hero-art { font-size: clamp(5rem, 12vw, 9rem); line-height: 1; color: rgba(255,255,255,.85); }
+.card { border: 1px solid var(--bs-border-color); border-radius: 1.1rem; box-shadow: 0 .35rem 1.5rem rgba(25, 40, 90, .045); }
+.section-icon { display: grid; place-items: center; width: 2.7rem; height: 2.7rem; background: rgba(49,87,213,.1); color: var(--sf-primary); border-radius: .85rem; font-size: 1.35rem; }
+.drop-zone { border: 2px dashed var(--bs-border-color); border-radius: 1rem; background: var(--bs-tertiary-bg); cursor: pointer; transition: border-color .15s, background .15s; }
+.drop-zone:hover, .drop-zone.dragging { border-color: var(--sf-primary); background: rgba(49,87,213,.07); }
+.drop-icon { color: var(--sf-primary); font-size: 2.5rem; }
+.search-box { width: min(100%, 16rem); }
+.file-icon { flex: 0 0 2.5rem; display: grid; place-items: center; width: 2.5rem; height: 2.7rem; border-radius: .7rem; background: rgba(49,87,213,.1); color: var(--sf-primary); font-size: 1.3rem; }
+.file-table th { color: var(--bs-secondary-color); font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.file-table td, .file-table th { padding: .85rem .5rem; }
+.min-w-0 { min-width: 0; }
+.empty-state > i { font-size: 3rem; color: var(--bs-secondary-color); }
+.feature { display: flex; gap: .9rem; align-items: flex-start; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); border-radius: 1rem; }
+.feature > i { color: var(--sf-primary); font-size: 1.4rem; }
+@media (max-width: 575.98px) { .file-table td, .file-table th { padding: .7rem .25rem; } .hero { border-radius: 1rem !important; } }

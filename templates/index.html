@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sube, organiza y descarga tus archivos en un solo lugar.">
+  <title>SubeFácil · Tus archivos en un solo lugar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', path='/css/estilos.css') }}" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-body border-bottom sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
+      <span class="brand-icon"><i class="bi bi-cloud-arrow-up-fill"></i></span> SubeFácil
+    </a>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <span class="d-none d-sm-inline small text-secondary">Espacio personal de archivos</span>
+      <button class="btn btn-outline-secondary btn-sm" id="botonTema" type="button" aria-label="Cambiar tema">
+        <i class="bi bi-moon-stars-fill" id="iconoTema"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4 py-lg-5">
+  <section class="hero rounded-4 p-4 p-md-5 mb-4">
+    <div class="row align-items-center g-4">
+      <div class="col-12 col-lg-8">
+        <span class="badge rounded-pill text-bg-light mb-3"><i class="bi bi-shield-check me-1"></i> Fácil y organizado</span>
+        <h1 class="display-5 fw-bold mb-3">Todos tus archivos,<br class="d-none d-md-block"> en un solo lugar.</h1>
+        <p class="lead mb-0">Sube documentos, imágenes y presentaciones; después podrás descargarlos o eliminarlos cuando quieras.</p>
+      </div>
+      <div class="col-12 col-lg-4 text-lg-end">
+        <div class="hero-art" aria-hidden="true"><i class="bi bi-cloud-check"></i></div>
+      </div>
+    </div>
+  </section>
+
+  {% if request.query_params.get('subido') %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>¡Archivo(s) subido(s) correctamente!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  </div>
+  {% endif %}
+  {% if request.query_params.get('eliminado') %}
+  <div class="alert alert-info alert-dismissible fade show" role="alert">
+    <i class="bi bi-info-circle-fill me-2"></i>El archivo fue eliminado.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+  </div>
+  {% endif %}
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-5">
+      <section class="card upload-card h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="section-icon"><i class="bi bi-cloud-arrow-up"></i></span>
+            <div><h2 class="h4 mb-0">Subir archivos</h2><p class="text-secondary small mb-0">Selecciona uno o varios archivos</p></div>
+          </div>
+          <form action="/subir" method="post" enctype="multipart/form-data" id="formularioSubida">
+            <label class="drop-zone w-100 text-center p-4" for="archivos">
+              <i class="bi bi-file-earmark-arrow-up drop-icon"></i>
+              <span class="d-block fw-semibold mt-2">Arrastra tus archivos aquí</span>
+              <span class="d-block text-secondary small my-1">o haz clic para buscarlos</span>
+              <span class="btn btn-primary btn-sm mt-2">Elegir archivos</span>
+              <input class="visually-hidden" type="file" id="archivos" name="archivos" multiple required
+                     accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.png,.jpg,.jpeg,.gif,.webp,.zip,.rar">
+            </label>
+            <div id="seleccion" class="small text-secondary mt-3" aria-live="polite">No has seleccionado archivos.</div>
+            <div class="small text-secondary mt-3"><i class="bi bi-info-circle me-1"></i>Máximo 20 MB por archivo. Tipos permitidos: PDF, Office, imágenes, TXT, CSV y ZIP/RAR.</div>
+            <button class="btn btn-primary w-100 mt-4" id="botonSubir" type="submit">
+              <i class="bi bi-cloud-upload me-2"></i>Subir archivos
+            </button>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <section class="card h-100">
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <div>
+              <h2 class="h4 mb-1">Mis archivos</h2>
+              <p class="text-secondary small mb-0"><span id="totalArchivos">{{ archivos|length }}</span> archivo(s) guardado(s)</p>
+            </div>
+            <div class="input-group search-box">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="search" id="busqueda" class="form-control" placeholder="Buscar archivo..." aria-label="Buscar archivo">
+            </div>
+          </div>
+
+          {% if archivos %}
+          <div class="table-responsive">
+            <table class="table align-middle file-table mb-0">
+              <thead><tr><th>Archivo</th><th class="d-none d-sm-table-cell">Tamaño</th><th class="text-end">Acciones</th></tr></thead>
+              <tbody id="listaArchivos">
+              {% for archivo in archivos %}
+                <tr class="fila-archivo" data-nombre="{{ archivo.name|lower }}">
+                  <td>
+                    <div class="d-flex align-items-center gap-3">
+                      <span class="file-icon"><i class="bi bi-file-earmark-{{ 'pdf' if archivo.extension == 'pdf' else 'image' if archivo.extension in ['png','jpg','jpeg','gif','webp'] else 'zip' if archivo.extension in ['zip','rar'] else 'text' }}"></i></span>
+                      <div class="min-w-0"><div class="fw-semibold text-break">{{ archivo.name }}</div><span class="badge text-bg-secondary-subtle">{{ archivo.extension|upper }}</span></div>
+                    </div>
+                  </td>
+                  <td class="text-secondary small d-none d-sm-table-cell">{{ archivo.size_label }}</td>
+                  <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-primary" href="/descargar/{{ archivo.stored_name }}" title="Descargar" aria-label="Descargar {{ archivo.name }}"><i class="bi bi-download"></i></a>
+                    <form action="/eliminar/{{ archivo.stored_name }}" method="post" class="d-inline" onsubmit="return confirm('¿Seguro que quieres eliminar este archivo?')">
+                      <button class="btn btn-sm btn-outline-danger" type="submit" title="Eliminar" aria-label="Eliminar {{ archivo.name }}"><i class="bi bi-trash3"></i></button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div id="sinResultados" class="text-center py-4 text-secondary d-none"><i class="bi bi-search fs-3 d-block mb-2"></i>No se encontraron archivos con ese nombre.</div>
+          {% else %}
+          <div class="empty-state text-center py-5" id="vacio">
+            <i class="bi bi-folder2-open"></i>
+            <h3 class="h5 mt-3">Todavía no hay archivos</h3>
+            <p class="text-secondary mb-0">Cuando subas un archivo, aparecerá aquí.</p>
+          </div>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="row g-3 mt-3" aria-label="Características">
+    <div class="col-12 col-md-4"><div class="feature p-3 h-100"><i class="bi bi-lightning-charge"></i><div><strong>Simple</strong><p class="small text-secondary mb-0">Sube varios archivos de una vez.</p></div></div></div>
+    <div class="col-12 col-md-4"><div class="feature p-3 h-100"><i class="bi bi-folder-check"></i><div><strong>Organizado</strong><p class="small text-secondary mb-0">Consulta los archivos en una lista.</p></div></div></div>
+    <div class="col-12 col-md-4"><div class="feature p-3 h-100"><i class="bi bi-moon-stars"></i><div><strong>A tu gusto</strong><p class="small text-secondary mb-0">Cambia entre tema claro y oscuro.</p></div></div></div>
+  </section>
+</main>
+
+<footer class="border-top py-4 mt-4">
+  <div class="container d-flex flex-column flex-sm-row justify-content-between gap-2 small text-secondary">
+    <span><strong>SubeFácil</strong> · Proyecto educativo con Bootstrap 5.3.8</span>
+    <span>Los archivos se guardan en el servidor donde se ejecuta la aplicación.</span>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', path='/js/app.js') }}"></script>
+</body>
+</html>
